@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "388233580989",
+    "project_id": "donatekart-42dd6",
+    "storage_bucket": "donatekart-42dd6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:388233580989:android:1b6f19d9176eeb2f8c42d4",
+        "android_client_info": {
+          "package_name": "com.example.donate_kart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiLIoVc7sgqG7Bysvbq_A_JrixfGh4hGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
