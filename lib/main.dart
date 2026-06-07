@@ -6,8 +6,13 @@ import 'screens/enhanced_auth_screen.dart';
 import 'package:donate_kart/main.dart';
 import 'screens/payment_method_screen.dart';
 import 'screens/location_header.dart';
+import 'screens/ngo_search_screen.dart';
+import 'screens/checkout_screen.dart';
+import 'screens/video_upload_screen.dart';
 import 'services/payment_service.dart';
 import 'firebase_options.dart';
+import 'models/ngo_model.dart';
+import 'models/video_testimony_model.dart';
 
 void main() async {
   // 2. Tell Flutter to finish initializing its internal components first
@@ -131,22 +136,6 @@ class DonationKit {
     required this.price,
     required this.description,
     required this.category,
-    required this.image,
-  });
-}
-
-class NgoPartner {
-  final String id;
-  final String name;
-  final String cause;
-  final double rating;
-  final String image;
-
-  const NgoPartner({
-    required this.id,
-    required this.name,
-    required this.cause,
-    required this.rating,
     required this.image,
   });
 }
@@ -275,6 +264,7 @@ class _MainAppRouterState extends State<MainAppRouter> {
   UserProfile? _currentUser;
   final List<DonationKit> _cart = [];
   final PaymentService _paymentService = PaymentService();
+  final List<VideoTestimony> _videos = [];
 
   final List<DonationKit> _donationKits = [
     const DonationKit(
@@ -370,21 +360,24 @@ class _MainAppRouterState extends State<MainAppRouter> {
   ];
 
   final List<NgoPartner> _ngos = [
+    // Gurugram NGOs
     const NgoPartner(
       id: '1',
-      name: 'Care India',
+      name: 'Care India - Gurugram',
       cause: 'Child Education',
       rating: 4.8,
       image:
-          'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1427504494936-ed7a04f94d0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Gurugram',
     ),
     const NgoPartner(
       id: '2',
-      name: 'Green Earth',
-      cause: 'Environment',
+      name: 'Snehalaya Haryana',
+      cause: 'Child Welfare',
       rating: 4.9,
       image:
-          'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Gurugram',
     ),
     const NgoPartner(
       id: '3',
@@ -392,23 +385,27 @@ class _MainAppRouterState extends State<MainAppRouter> {
       cause: 'Hunger Relief',
       rating: 4.7,
       image:
-          'https://images.unsplash.com/photo-1593113565694-c708fa0d42b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Gurugram',
     ),
     const NgoPartner(
       id: '4',
-      name: 'Health for All',
-      cause: 'Medical Aid',
+      name: 'Helping Hands India',
+      cause: 'Community Support',
       rating: 4.6,
       image:
-          'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1559027615-cd2628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Gurugram',
     ),
+    // Faridabad NGOs
     const NgoPartner(
       id: '5',
-      name: 'Safe Shelter',
+      name: 'Safe Shelter - Faridabad',
       cause: 'Housing & Welfare',
       rating: 4.8,
       image:
-          'https://images.unsplash.com/photo-1564629238241-c6a6e4e6bb3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Faridabad',
     ),
     const NgoPartner(
       id: '6',
@@ -416,23 +413,235 @@ class _MainAppRouterState extends State<MainAppRouter> {
       cause: 'Clean Water Access',
       rating: 4.9,
       image:
-          'https://images.unsplash.com/photo-1559027615-cd2628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Faridabad',
     ),
     const NgoPartner(
       id: '7',
-      name: 'Skill Development',
+      name: 'Skill Development Center',
       cause: 'Vocational Training',
       rating: 4.5,
       image:
-          'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Faridabad',
     ),
     const NgoPartner(
       id: '8',
-      name: 'Women Empowerment',
+      name: 'Women Empowerment Society',
       cause: 'Gender Equality',
       rating: 4.7,
       image:
-          'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Faridabad',
+    ),
+    // Hisar NGOs
+    const NgoPartner(
+      id: '9',
+      name: 'Haryana Vikas NGO',
+      cause: 'Rural Development',
+      rating: 4.7,
+      image:
+          'https://images.unsplash.com/photo-1586495077519-455cc28a7a85?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Hisar',
+    ),
+    const NgoPartner(
+      id: '10',
+      name: 'Green Earth Initiative',
+      cause: 'Environment Protection',
+      rating: 4.8,
+      image:
+          'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Hisar',
+    ),
+    // Rohtak NGOs
+    const NgoPartner(
+      id: '11',
+      name: 'Asha Foundation Rohtak',
+      cause: 'Women Empowerment',
+      rating: 4.9,
+      image:
+          'https://images.unsplash.com/photo-1576086213369-97a306d36557?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Rohtak',
+    ),
+    const NgoPartner(
+      id: '12',
+      name: 'Medical Relief Foundation',
+      cause: 'Healthcare & Medical Aid',
+      rating: 4.8,
+      image:
+          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Rohtak',
+    ),
+    // Yamunanagar NGOs
+    const NgoPartner(
+      id: '13',
+      name: 'Rural Development Society',
+      cause: 'Agriculture & Farmers Aid',
+      rating: 4.6,
+      image:
+          'https://images.unsplash.com/photo-1574943320219-553eb213f72d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Yamunanagar',
+    ),
+    const NgoPartner(
+      id: '14',
+      name: 'Education for All',
+      cause: 'Quality Education',
+      rating: 4.7,
+      image:
+          'https://images.unsplash.com/photo-1427504494936-ed7a04f94d0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Yamunanagar',
+    ),
+    // Karnal NGOs
+    const NgoPartner(
+      id: '15',
+      name: 'Karnal Relief Society',
+      cause: 'Disaster Relief',
+      rating: 4.5,
+      image:
+          'https://images.unsplash.com/photo-1545249390-8ccfae1f67ed?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Karnal',
+    ),
+    const NgoPartner(
+      id: '16',
+      name: 'Health First Initiative',
+      cause: 'Public Health',
+      rating: 4.8,
+      image:
+          'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Karnal',
+    ),
+    // Ambala NGOs
+    const NgoPartner(
+      id: '17',
+      name: 'Ambala Community Care',
+      cause: 'Elderly Care',
+      rating: 4.7,
+      image:
+          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Ambala',
+    ),
+    const NgoPartner(
+      id: '18',
+      name: 'Youth Skill Academy',
+      cause: 'Youth Development',
+      rating: 4.6,
+      image:
+          'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Ambala',
+    ),
+    // Bhiwani NGOs
+    const NgoPartner(
+      id: '19',
+      name: 'Bhiwani Women Collective',
+      cause: 'Women Education',
+      rating: 4.9,
+      image:
+          'https://images.unsplash.com/photo-1427504494936-ed7a04f94d0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Bhiwani',
+    ),
+    const NgoPartner(
+      id: '20',
+      name: 'Environmental Action Group',
+      cause: 'Pollution Control',
+      rating: 4.5,
+      image:
+          'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Bhiwani',
+    ),
+    // Sonepat NGOs
+    const NgoPartner(
+      id: '21',
+      name: 'Sonepat Education Trust',
+      cause: 'Primary Education',
+      rating: 4.7,
+      image:
+          'https://images.unsplash.com/photo-1427504494936-ed7a04f94d0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Sonepat',
+    ),
+    const NgoPartner(
+      id: '22',
+      name: 'Community Health Services',
+      cause: 'Primary Healthcare',
+      rating: 4.8,
+      image:
+          'https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Sonepat',
+    ),
+    // Panipat NGOs
+    const NgoPartner(
+      id: '23',
+      name: 'Panipat Welfare Association',
+      cause: 'Social Welfare',
+      rating: 4.6,
+      image:
+          'https://images.unsplash.com/photo-1559027615-cd2628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Panipat',
+    ),
+    const NgoPartner(
+      id: '24',
+      name: 'Skills & Employment Program',
+      cause: 'Employment Generation',
+      rating: 4.7,
+      image:
+          'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Panipat',
+    ),
+    // Jind NGOs
+    const NgoPartner(
+      id: '25',
+      name: 'Jind Rural Foundation',
+      cause: 'Rural Empowerment',
+      rating: 4.8,
+      image:
+          'https://images.unsplash.com/photo-1574943320219-553eb213f72d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Jind',
+    ),
+    const NgoPartner(
+      id: '26',
+      name: 'Agricultural Support Group',
+      cause: 'Farmer Welfare',
+      rating: 4.6,
+      image:
+          'https://images.unsplash.com/photo-1574943320219-553eb213f72d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Jind',
+    ),
+    // Kaithal NGOs
+    const NgoPartner(
+      id: '27',
+      name: 'Kaithal Community Trust',
+      cause: 'Community Development',
+      rating: 4.7,
+      image:
+          'https://images.unsplash.com/photo-1559027615-cd2628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Kaithal',
+    ),
+    const NgoPartner(
+      id: '28',
+      name: 'Disability Support Center',
+      cause: 'Disability Services',
+      rating: 4.8,
+      image:
+          'https://images.unsplash.com/photo-1579154204601-01d2dcaff095?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Kaithal',
+    ),
+    // Palwal NGOs
+    const NgoPartner(
+      id: '29',
+      name: 'Palwal Social Welfare',
+      cause: 'Social Services',
+      rating: 4.5,
+      image:
+          'https://images.unsplash.com/photo-1559027615-cd2628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Palwal',
+    ),
+    const NgoPartner(
+      id: '30',
+      name: 'Child Care & Protection',
+      cause: 'Child Protection',
+      rating: 4.9,
+      image:
+          'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=100',
+      city: 'Palwal',
     ),
   ];
 
@@ -615,30 +824,38 @@ class _MainAppRouterState extends State<MainAppRouter> {
       return;
     }
 
-    final total = _cart.fold(0.0, (sum, item) => sum + item.price);
+    final cartTotal = _cart.fold(0.0, (sum, item) => sum + item.price);
 
-    if (total <= 0) {
+    if (cartTotal <= 0) {
       _showToast('Invalid cart total. Please check your items.');
       return;
     }
 
-    print('🛒 Starting checkout: Total=$total, Items=${_cart.length}');
-    print('📧 Email: ${_currentUser!.email}');
-    print('👤 UserID: ${_currentUser!.uid}');
-
-    // Show payment method selection
+    // Show checkout screen with amount adjustment
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PaymentMethodScreen(
-          amount: total,
-          userEmail: _currentUser!.email,
+        builder: (context) => CheckoutScreen(
           userName: _currentUser!.name,
-          onRazorpaySelected: () {
-            _processRazorpayPayment(total);
-          },
-          onUPISelected: (upiId) {
-            _processUPIPayment(total, upiId);
+          userEmail: _currentUser!.email,
+          onCheckout: (donationAmount) {
+            // Navigate to payment method screen with selected amount
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PaymentMethodScreen(
+                  amount: donationAmount.toDouble(),
+                  userEmail: _currentUser!.email,
+                  userName: _currentUser!.name,
+                  onRazorpaySelected: () {
+                    _processRazorpayPayment(donationAmount.toDouble());
+                  },
+                  onUPISelected: (upiId) {
+                    _processUPIPayment(donationAmount.toDouble(), upiId);
+                  },
+                ),
+              ),
+            );
           },
         ),
       ),
@@ -731,7 +948,7 @@ class _MainAppRouterState extends State<MainAppRouter> {
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       title: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: [
           const Icon(Icons.favorite, color: AppColors.rose, size: 28),
           const SizedBox(width: 8),
@@ -743,10 +960,19 @@ class _MainAppRouterState extends State<MainAppRouter> {
               fontSize: 22,
             ),
           ),
-          const SizedBox(width: 16), // Space between the logo text and your picker
-          
-          // Your new location selector added in!
-          const LocationHeader(),
+          const SizedBox(width: 16),
+          Flexible(
+            child: LocationHeader(
+              onSearchNgos: (_) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NgoSearchScreen(ngos: _ngos),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
       backgroundColor: Colors.white,
@@ -794,6 +1020,17 @@ class _MainAppRouterState extends State<MainAppRouter> {
                     Icon(Icons.star, color: AppColors.amber),
                     SizedBox(width: 12),
                     Text('Testimonials'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                onTap: () => _navigateTo('video'),
+                child: const Row(
+                  children: [
+                    Icon(Icons.videocam, color: AppColors.rose),
+                    SizedBox(width: 12),
+                    Text('Share Video Story'),
                   ],
                 ),
               ),
@@ -964,6 +1201,7 @@ class _MainAppRouterState extends State<MainAppRouter> {
       'home' => HomeDashboard(
         totalCollected: _totalDonationsCollected,
         onNavigate: _navigateTo,
+        ngos: _ngos,
       ),
       'ngos' => NgoListingScreen(ngos: _ngos),
       'donate' => DonateKartScreen(
@@ -991,6 +1229,19 @@ class _MainAppRouterState extends State<MainAppRouter> {
         },
       ),
       'map' => const DonationCentersMapScreen(),
+      'video' => VideoUploadScreen(
+        userId: _currentUser?.uid ?? 'anonymous',
+        userName: _currentUser?.name ?? 'Guest',
+        userEmail: _currentUser?.email ?? 'guest@example.com',
+        ngoOptions: _ngos
+            .map((ngo) => {'id': ngo.id, 'name': ngo.name})
+            .toList(),
+        onVideoSubmit: (video) {
+          setState(() => _videos.add(video));
+          _showToast('Video uploaded successfully! Pending approval.');
+          _navigateTo('home');
+        },
+      ),
       'admin' => AdminDashboard(
         ngos: _ngos,
         kits: _donationKits,
@@ -1332,58 +1583,164 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-class HomeDashboard extends StatelessWidget {
+class HomeDashboard extends StatefulWidget {
   final int totalCollected;
   final ValueChanged<String> onNavigate;
+  final List<NgoPartner> ngos;
 
   const HomeDashboard({
     super.key,
     required this.totalCollected,
     required this.onNavigate,
+    required this.ngos,
   });
 
   @override
+  State<HomeDashboard> createState() => _HomeDashboardState();
+}
+
+class _HomeDashboardState extends State<HomeDashboard> {
+  String _selectedCategory = 'All';
+
+  // Mapping of category labels to NGO causes
+  final Map<String, List<String>> _categoryMapping = {
+    'All': [], // Empty means all NGOs
+    'Education': [
+      'Child Education',
+      'Quality Education',
+      'Primary Education',
+      'Women Education',
+    ],
+    'Health & Hunger': [
+      'Hunger Relief',
+      'Healthcare & Medical Aid',
+      'Public Health',
+      'Primary Healthcare',
+    ],
+    'Disaster Relief': ['Disaster Relief'],
+    'Environment': [
+      'Environment Protection',
+      'Pollution Control',
+      'Green Earth Initiative',
+    ],
+    'Animal Welfare': ['Animal Welfare', 'Animal Protection'],
+  };
+
+  List<NgoPartner> _filterNgosByCategory(List<NgoPartner> allNgos) {
+    if (_selectedCategory == 'All') {
+      return allNgos;
+    }
+
+    final allowedCauses = _categoryMapping[_selectedCategory] ?? [];
+    return allNgos.where((ngo) => allowedCauses.contains(ngo.cause)).toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bool isWide = MediaQuery.sizeOf(context).width > 900;
     return ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       children: [
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: LinearGradient(
-              colors: [AppColors.emeraldDark, AppColors.teal],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: AppColors.emerald.withValues(alpha: 0.4),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 28,
+                offset: const Offset(0, 18),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.emerald.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.card_giftcard,
+                      color: AppColors.emerald,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'DonateKart',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.slate,
+                    ),
+                  ),
+                  const Spacer(),
+                  const _HeaderNavItem(title: 'Campaigns', isActive: true),
+                  const SizedBox(width: 16),
+                  const _HeaderNavItem(title: 'How it Works'),
+                  const SizedBox(width: 16),
+                  const _HeaderNavItem(title: 'About Us'),
+                  const SizedBox(width: 20),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.search, color: AppColors.slate),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton(
+                    onPressed: () => widget.onNavigate('auth'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.slate,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 16,
+                      ),
+                    ),
+                    child: const Text(
+                      'Sign In',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
               const Text(
-                'Direct & Transparent\nDonations in Rupees.',
+                'Discover verified campaigns and help individuals or organizations achieve their goals.',
                 style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: AppColors.slateDark,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
                   height: 1.2,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               const Text(
-                'Donate essential kits directly to trusted NGO partners. 100% of your contributions buy raw materials delivered to beneficiaries.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.emeraldSoft,
-                  height: 1.4,
+                '100% of your donation goes directly to the cause.',
+                style: TextStyle(color: AppColors.slateLight, fontSize: 16),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                height: 56,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search for causes, organizations...',
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: AppColors.surfaceLight,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -1391,255 +1748,438 @@ class HomeDashboard extends StatelessWidget {
                 spacing: 12,
                 runSpacing: 12,
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.emerald,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () => onNavigate('donate'),
-                    child: const Text(
-                      'Start Donating',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                  _FilterChip(
+                    label: 'All',
+                    isSelected: _selectedCategory == 'All',
+                    onPressed: () {
+                      setState(() => _selectedCategory = 'All');
+                    },
                   ),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () => onNavigate('pickup'),
-                    icon: const Icon(Icons.local_shipping),
-                    label: const Text('Book Pickup'),
+                  _FilterChip(
+                    label: 'Education',
+                    isSelected: _selectedCategory == 'Education',
+                    onPressed: () {
+                      setState(() => _selectedCategory = 'Education');
+                    },
+                  ),
+                  _FilterChip(
+                    label: 'Health & Hunger',
+                    isSelected: _selectedCategory == 'Health & Hunger',
+                    onPressed: () {
+                      setState(() => _selectedCategory = 'Health & Hunger');
+                    },
+                  ),
+                  _FilterChip(
+                    label: 'Disaster Relief',
+                    isSelected: _selectedCategory == 'Disaster Relief',
+                    onPressed: () {
+                      setState(() => _selectedCategory = 'Disaster Relief');
+                    },
+                  ),
+                  _FilterChip(
+                    label: 'Environment',
+                    isSelected: _selectedCategory == 'Environment',
+                    onPressed: () {
+                      setState(() => _selectedCategory = 'Environment');
+                    },
+                  ),
+                  _FilterChip(
+                    label: 'Animal Welfare',
+                    isSelected: _selectedCategory == 'Animal Welfare',
+                    onPressed: () {
+                      setState(() => _selectedCategory = 'Animal Welfare');
+                    },
                   ),
                 ],
               ),
             ],
           ),
         ),
-        const SizedBox(height: 32),
-        const Text(
-          'How would you like to help?',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        const SizedBox(height: 28),
+        // Video Upload CTA Section
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.rose.withOpacity(0.15),
+                AppColors.orange.withOpacity(0.15),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.rose.withOpacity(0.3)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.rose.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.videocam,
+                      color: AppColors.rose,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Share Your Impact Story',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.slate,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Upload a 1-minute video showing the real stories of people helped by donations',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.slateLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => widget.onNavigate('video'),
+                  icon: const Icon(Icons.videocam),
+                  label: const Text('Record or Upload Video'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.rose,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: MediaQuery.sizeOf(context).width > 700 ? 4 : 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 1.3,
+        const SizedBox(height: 28),
+        // Filtered NGOs Section
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _CategoryCard(
-              icon: Icons.inventory,
-              title: 'Browse Kits',
-              backgroundColor: AppColors.blueSoft,
-              iconColor: AppColors.blue,
-              gradientColors: [
-                AppColors.blue.withValues(alpha: 0.1),
-                AppColors.blueSoft,
-              ],
-              onTap: () => onNavigate('donate'),
+            Text(
+              _selectedCategory == 'All'
+                  ? 'Featured NGO Partners'
+                  : '$_selectedCategory NGOs',
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
             ),
-            _CategoryCard(
-              icon: Icons.local_shipping,
-              title: 'Donate Material',
-              backgroundColor: AppColors.orangeSoft,
-              iconColor: AppColors.orange,
-              gradientColors: [
-                AppColors.orange.withValues(alpha: 0.1),
-                AppColors.orangeSoft,
-              ],
-              onTap: () => onNavigate('pickup'),
-            ),
-            _CategoryCard(
-              icon: Icons.groups,
-              title: 'Partner NGOs',
-              backgroundColor: AppColors.purpleSoft,
-              iconColor: AppColors.purple,
-              gradientColors: [
-                AppColors.purple.withValues(alpha: 0.1),
-                AppColors.purpleSoft,
-              ],
-              onTap: () => onNavigate('ngos'),
-            ),
-            _CategoryCard(
-              icon: Icons.person_add,
-              title: 'Volunteer App',
-              backgroundColor: AppColors.roseSoft,
-              iconColor: AppColors.rose,
-              gradientColors: [
-                AppColors.rose.withValues(alpha: 0.1),
-                AppColors.roseSoft,
-              ],
-              onTap: () => onNavigate('volunteer'),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '${_filterNgosByCategory(widget.ngos).length} found',
+                style: TextStyle(
+                  color: AppColors.slateDark,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 32),
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              color: AppColors.emerald.withValues(alpha: 0.2),
-              width: 2,
-            ),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.emerald.withValues(alpha: 0.1),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              const Text(
-                '✓ Verified Transparent Impact',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.emerald,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Wrap(
-                alignment: WrapAlignment.spaceAround,
-                spacing: 32,
-                runSpacing: 20,
+        const SizedBox(height: 20),
+        // Display filtered NGOs
+        _selectedCategory == 'All'
+            ? GridView.count(
+                crossAxisCount: isWide ? 2 : 1,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
+                childAspectRatio: isWide ? 1.8 : 1.25,
                 children: [
-                  const _StatCol(count: '10,500+', label: 'Donors'),
-                  const _StatCol(count: '54+', label: 'NGOs'),
-                  _StatCol(
-                    count: '₹${totalCollected.toLocaleString()}',
-                    label: 'Direct Funds',
+                  _TrendingCauseCard(
+                    title: 'Education',
+                    label: 'Education',
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=900&q=80',
+                    urgencyLabel: null,
                   ),
-                  const _StatCol(count: '21.8k+', label: 'Pickups'),
+                  _TrendingCauseCard(
+                    title: 'Disaster Relief',
+                    label: 'Disaster Relief',
+                    imageUrl:
+                        'https://images.unsplash.com/photo-1545249390-8ccfae1f67ed?auto=format&fit=crop&w=900&q=80',
+                    urgencyLabel: 'Urgent',
+                  ),
                 ],
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _filterNgosByCategory(widget.ngos).length,
+                itemBuilder: (context, index) {
+                  final ngo = _filterNgosByCategory(widget.ngos)[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // NGO Image
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16),
+                          ),
+                          child: Stack(
+                            children: [
+                              Image.network(
+                                ngo.image,
+                                height: 160,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 160,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.slate.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                          AppColors.slate.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        size: 50,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              // Rating badge
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.shade400,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.2,
+                                        ),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.star,
+                                        color: Colors.white,
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        ngo.rating.toString(),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // NGO Details
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ngo.name,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.slate,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.emerald.withValues(
+                                            alpha: 0.15,
+                                          ),
+                                          AppColors.teal.withValues(
+                                            alpha: 0.15,
+                                          ),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '🎯 ${ngo.cause}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.emerald,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.blueSoft,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '📍 ${ngo.city}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.blue,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
-        ),
+        const SizedBox(height: 28),
       ],
     );
   }
 }
 
-class _CategoryCard extends StatefulWidget {
-  final IconData icon;
+class _HeaderNavItem extends StatelessWidget {
   final String title;
-  final Color backgroundColor;
-  final Color iconColor;
-  final List<Color>? gradientColors;
-  final VoidCallback onTap;
+  final bool isActive;
 
-  const _CategoryCard({
-    required this.icon,
-    required this.title,
-    required this.backgroundColor,
-    required this.iconColor,
-    this.gradientColors,
-    required this.onTap,
-  });
-
-  @override
-  State<_CategoryCard> createState() => _CategoryCardState();
-}
-
-class _CategoryCardState extends State<_CategoryCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  const _HeaderNavItem({required this.title, this.isActive = false});
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: InkWell(
-        onTap: () {
-          _controller.forward().then((_) {
-            _controller.reverse();
-            widget.onTap();
-          });
-        },
-        onHover: (isHovering) {
-          if (isHovering) {
-            _controller.forward();
-          } else {
-            _controller.reverse();
-          }
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Ink(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              color: widget.iconColor.withValues(alpha: 0.2),
-              width: 1.5,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: isActive ? AppColors.slateDark : AppColors.slateLight,
+            fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+        if (isActive) ...[
+          const SizedBox(height: 6),
+          Container(
+            height: 3,
+            width: 38,
+            decoration: BoxDecoration(
+              color: AppColors.emerald,
+              borderRadius: BorderRadius.circular(99),
             ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback? onPressed;
+
+  const _FilterChip({
+    required this.label,
+    this.isSelected = false,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.slateDark : Colors.white,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: isSelected ? AppColors.slateDark : AppColors.surface,
+          ),
+          boxShadow: [
+            if (!isSelected)
               BoxShadow(
-                color: widget.iconColor.withValues(alpha: 0.1),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: widget.gradientColors ?? [widget.backgroundColor],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(widget.icon, color: widget.iconColor, size: 24),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                widget.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: AppColors.slate,
-                ),
-              ),
-            ],
+          ],
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppColors.slateDark,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -1647,49 +2187,91 @@ class _CategoryCardState extends State<_CategoryCard>
   }
 }
 
-class _StatCol extends StatelessWidget {
-  final String count;
+class _TrendingCauseCard extends StatelessWidget {
+  final String title;
   final String label;
+  final String imageUrl;
+  final String? urgencyLabel;
 
-  const _StatCol({required this.count, required this.label});
+  const _TrendingCauseCard({
+    required this.title,
+    required this.label,
+    required this.imageUrl,
+    this.urgencyLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.emerald.withValues(alpha: 0.1),
-                AppColors.teal.withValues(alpha: 0.1),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        image: DecorationImage(
+          image: NetworkImage(imageUrl),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withValues(alpha: 0.28),
+            BlendMode.darken,
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      color: AppColors.slateDark,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                if (urgencyLabel != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.rose,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      urgencyLabel!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
               ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            count,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: AppColors.emerald,
+            const SizedBox(height: 18),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: AppColors.slateLight,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -1849,199 +2431,154 @@ class DonateKartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: kits.length,
+      itemBuilder: (context, index) {
+        final kit = kits[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: AppColors.emerald.withValues(alpha: 0.1),
+              width: 1,
+            ),
+          ),
+          elevation: 3,
+          shadowColor: AppColors.emerald.withValues(alpha: 0.2),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  AppColors.emeraldSoft.withValues(alpha: 0.3),
+                ],
+              ),
+            ),
             padding: const EdgeInsets.all(16),
-            itemCount: kits.length,
-            itemBuilder: (context, index) {
-              final kit = kits[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(
-                    color: AppColors.emerald.withValues(alpha: 0.1),
-                    width: 1,
-                  ),
-                ),
-                elevation: 3,
-                shadowColor: AppColors.emerald.withValues(alpha: 0.2),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white,
-                        AppColors.emeraldSoft.withValues(alpha: 0.3),
-                      ],
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          kit.image,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppColors.emerald.withValues(alpha: 0.3),
-                                      AppColors.teal.withValues(alpha: 0.3),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.card_giftcard,
-                                  color: AppColors.emerald,
-                                  size: 32,
-                                ),
-                              ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              kit.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.slate,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              kit.description,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.slateLight,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    AppColors.emerald.withValues(alpha: 0.2),
-                                    AppColors.teal.withValues(alpha: 0.2),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '₹${kit.price.toLocaleString()}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.emerald,
-                                ),
-                              ),
-                            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    kit.image,
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.emerald.withValues(alpha: 0.3),
+                            AppColors.teal.withValues(alpha: 0.3),
                           ],
                         ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppColors.emerald.withValues(alpha: 0.15),
-                              AppColors.teal.withValues(alpha: 0.15),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(12),
+                      child: const Icon(
+                        Icons.card_giftcard,
+                        color: AppColors.emerald,
+                        size: 32,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        kit.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.slate,
                         ),
-                        child: IconButton(
-                          onPressed: () => onAddToCart(kit),
-                          icon: const Icon(Icons.add_shopping_cart),
-                          color: AppColors.emerald,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        kit.description,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.slateLight,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.emeraldLight.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          kit.category,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.emerald,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              );
-            },
-          ),
-        ),
-        if (cart.isNotEmpty)
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Total Donation',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
+                const SizedBox(width: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.emerald.withValues(alpha: 0.15),
+                        AppColors.teal.withValues(alpha: 0.15),
+                      ],
                     ),
-                    Text(
-                      '₹${cart.fold(0, (sum, item) => sum + item.price).toLocaleString()}',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
-                ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.emerald,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        // Open checkout screen directly
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CheckoutScreen(
+                              userName: 'Donor',
+                              userEmail: 'donor@donate.com',
+                              onCheckout: (amount) {
+                                // Navigate to payment with the selected amount
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        );
+                      },
                       borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Icon(
+                          Icons.favorite,
+                          color: AppColors.emerald,
+                          size: 24,
+                        ),
+                      ),
                     ),
-                  ),
-                  onPressed: onCheckout,
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text(
-                    'Checkout',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
               ],
             ),
           ),
-      ],
+        );
+      },
     );
   }
 }
@@ -3141,11 +3678,13 @@ class _DonationCentersMapScreenState extends State<DonationCentersMapScreen> {
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? center['color']
-                                    : center['color'].withOpacity(0.7),
+                                    : center['color'].withValues(alpha: 0.7),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: center['color'].withOpacity(0.5),
+                                    color: center['color'].withValues(
+                                      alpha: 0.5,
+                                    ),
                                     blurRadius: isSelected ? 12 : 6,
                                     spreadRadius: isSelected ? 2 : 0,
                                   ),
@@ -3226,26 +3765,29 @@ class _DonationCentersMapScreenState extends State<DonationCentersMapScreen> {
                       side: BorderSide(
                         color: isSelected
                             ? centerColor
-                            : centerColor.withOpacity(0.2),
+                            : centerColor.withValues(alpha: 0.2),
                         width: isSelected ? 2 : 1,
                       ),
                     ),
                     elevation: isSelected ? 4 : 1,
-                    shadowColor: centerColor.withOpacity(
-                      isSelected ? 0.3 : 0.1,
+                    shadowColor: centerColor.withValues(
+                      alpha: isSelected ? 0.3 : 0.1,
                     ),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         gradient: LinearGradient(
-                          colors: [Colors.white, centerColor.withOpacity(0.08)],
+                          colors: [
+                            Colors.white,
+                            centerColor.withValues(alpha: 0.08),
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                       ),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: centerColor.withOpacity(0.2),
+                          backgroundColor: centerColor.withValues(alpha: 0.2),
                           child: Icon(
                             Icons.volunteer_activism,
                             color: centerColor,
@@ -3285,7 +3827,9 @@ class _DonationCentersMapScreenState extends State<DonationCentersMapScreen> {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: centerColor.withOpacity(0.15),
+                                        color: centerColor.withValues(
+                                          alpha: 0.15,
+                                        ),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(

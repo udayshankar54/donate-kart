@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 // Locally defined AppColors to match your project's color palette
 class AppColors {
   static const emerald = Color(0xFF0F5969);
   static const emeraldDark = Color(0xFF047857);
   static const emeraldLight = Color(0xFF10B981);
-  static const emeraldSoft = Color(0xFFFD1FAE5);
+  static const emeraldSoft = Color(0xFFD1FAE5);
 }
 
 class LocationHeader extends StatefulWidget {
   final VoidCallback? onTap;
+  final ValueChanged<String>? onSearchNgos;
 
-  const LocationHeader({
-    Key? key,
-    this.onTap,
-  }) : super(key: key);
+  const LocationHeader({super.key, this.onTap, this.onSearchNgos});
 
   @override
   State<LocationHeader> createState() => _LocationHeaderState();
@@ -44,10 +44,7 @@ class _LocationHeaderState extends State<LocationHeader> {
                 children: [
                   const Text(
                     "Select Location",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -79,22 +76,45 @@ class _LocationHeaderState extends State<LocationHeader> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.emerald.withOpacity(0.1),
+                    color: AppColors.emerald.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.my_location, color: AppColors.emerald),
+                  child: const Icon(
+                    Icons.my_location,
+                    color: AppColors.emerald,
+                  ),
                 ),
                 title: const Text(
                   "Use Current Location",
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                subtitle: const Text("Patti Bagheru, Haryana, India"),
-                onTap: () {
+                onTap: () async {
+                  final navigator = Navigator.of(context);
+                  LocationPermission permission =
+                      await Geolocator.requestPermission();
+                  if (permission == LocationPermission.denied) return;
+
+                  Position position = await Geolocator.getCurrentPosition(
+                    desiredAccuracy: LocationAccuracy.high,
+                  );
+
+                  List<Placemark> placemarks = await placemarkFromCoordinates(
+                    position.latitude,
+                    position.longitude,
+                  );
+
+                  Placemark place = placemarks.first;
+                  String city =
+                      place.subLocality ?? place.locality ?? "Unknown";
+                  String full =
+                      "${place.locality}, ${place.administrativeArea}";
+
                   setState(() {
-                    _currentLocation = "Patti Bagheru, Haryana";
-                    _subLocality = "Patti Bagheru";
+                    _currentLocation = full;
+                    _subLocality = city;
                   });
-                  Navigator.pop(context);
+                  widget.onSearchNgos?.call(city);
+                  navigator.pop();
                 },
               ),
               const Divider(),
@@ -138,6 +158,7 @@ class _LocationHeaderState extends State<LocationHeader> {
           _currentLocation = fullAddress;
           _subLocality = city;
         });
+        widget.onSearchNgos?.call(city);
         Navigator.pop(context);
       },
     );
@@ -150,11 +171,11 @@ class _LocationHeaderState extends State<LocationHeader> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -167,7 +188,7 @@ class _LocationHeaderState extends State<LocationHeader> {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppColors.emerald.withOpacity(0.15),
+                color: AppColors.emerald.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -202,10 +223,7 @@ class _LocationHeaderState extends State<LocationHeader> {
                 ),
                 Text(
                   _currentLocation,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],

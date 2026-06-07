@@ -9,13 +9,13 @@ class PaymentMethodScreen extends StatefulWidget {
   final Function(String upiId) onUPISelected;
 
   const PaymentMethodScreen({
-    Key? key,
+    super.key,
     required this.amount,
     required this.userEmail,
     required this.userName,
     required this.onRazorpaySelected,
     required this.onUPISelected,
-  }) : super(key: key);
+  });
 
   @override
   State<PaymentMethodScreen> createState() => _PaymentMethodScreenState();
@@ -117,7 +117,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   // Show UPI Details
                   _buildPaymentMethodCard(
                     title: 'DonateKart UPI',
-                    subtitle: 'Our UPI: donatekartngo@ibl',
+                    subtitle: 'Our UPI: 7488126152@pytes',
                     icon: Icons.info,
                     onTap: () {
                       setState(() => _showQRDisplay = true);
@@ -144,7 +144,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.slateLight.withOpacity(0.2)),
+          border: Border.all(
+            color: AppColors.slateLight.withValues(alpha: 0.2),
+          ),
           borderRadius: BorderRadius.circular(12),
           color: Colors.white,
         ),
@@ -217,7 +219,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.blueSoft,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.blue.withOpacity(0.3)),
+                  border: Border.all(
+                    color: AppColors.blue.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -293,7 +297,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: AppColors.slateLight.withOpacity(0.3),
+                      color: AppColors.slateLight.withValues(alpha: 0.3),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -475,7 +479,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   children: [
                     const Expanded(
                       child: Text(
-                        'donatekartngo@ibl',
+                        '7488126152@pytes',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -529,7 +533,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.blueSoft,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.blue.withOpacity(0.3)),
+                  border: Border.all(
+                    color: AppColors.blue.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,7 +552,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                     Text(
                       '• Open any UPI app (Google Pay, PhonePe, Paytm, etc.)\n'
                       '• Select "Send Money" or "Send to UPI ID"\n'
-                      '• Enter: donatekartngo@ibl\n'
+                      '• Enter: 7488126152@pytes\n'
                       '• Enter amount: ₹${widget.amount.toStringAsFixed(2)}\n'
                       '• Complete the transaction with your PIN\n'
                       '• Your donation will be confirmed automatically',
@@ -567,7 +573,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.pop(context);
-                    widget.onUPISelected('donatekartngo@ibl');
+                    widget.onUPISelected('7488126152@pytes');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.emerald,

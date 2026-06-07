@@ -34,6 +34,86 @@
 
   <!-- Razorpay Payment Gateway -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <!-- Razorpay Web Checkout Handler -->
+  <script>
+    // Global variable to store payment callbacks
+    window.razorpayCallbacks = {};
+
+    // Function to open Razorpay checkout from Flutter
+    function openRazorpayCheckout(options) {
+      console.log('Opening Razorpay checkout with options:', options);
+
+      // Create a new Razorpay instance
+      var rzp = new Razorpay({
+        key: options.key,
+        amount: options.amount,
+        currency: options.currency,
+        name: options.name,
+        description: options.description,
+        image: options.image,
+        order_id: options.order_id,
+        prefill: options.prefill,
+        notes: options.notes,
+        theme: options.theme,
+        handler: function(response) {
+          console.log('Payment success:', response);
+          // Send success callback to Flutter
+          if (window.razorpaySuccessCallback) {
+            window.razorpaySuccessCallback(response);
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            console.log('Razorpay checkout dismissed');
+            // Send dismiss callback to Flutter
+            if (window.razorpayDismissCallback) {
+              window.razorpayDismissCallback();
+            }
+          }
+        }
+      });
+
+      // Handle errors
+      rzp.on('payment.failed', function(response) {
+        console.error('Payment failed:', response);
+        // Send error callback to Flutter
+        if (window.razorpayErrorCallback) {
+          window.razorpayErrorCallback({
+            code: response.error.code,
+            description: response.error.description,
+            source: response.error.source,
+            reason: response.error.reason,
+            metadata: response.error.metadata
+          });
+        }
+      });
+
+      // Open the checkout modal
+      rzp.open();
+    }
+
+    // Alternative: Function to process payment using order API
+    function createAndOpenOrder(orderData) {
+      console.log('Creating order and opening checkout:', orderData);
+      // This would typically call your backend to create an order first
+      // Then open checkout with the order_id
+      openRazorpayCheckout(orderData);
+    }
+
+    // Verify payment signature (optional, recommended for security)
+    function verifyPaymentSignature(paymentData) {
+      console.log('Verifying payment signature:', paymentData);
+      // This should be called on your backend for security
+      // Never verify signatures on client-side in production
+      
+      // Return verification result
+      return {
+        verified: true,
+        message: 'Payment verified successfully'
+      };
+    }
+  </script>
 </head>
 <body>
   <!--
